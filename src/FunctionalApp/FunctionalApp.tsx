@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Profile } from "../Profile";
 import { FunctionalForm } from "./FunctionalForm";
+import { User } from "../types";
 
 export const FunctionalApp = () => {
-  const [user, setUser] = useState({
+  const [userProfile, setUserProfile] = useState<User>({
     first: "",
     last: "",
     city: "",
@@ -13,8 +14,11 @@ export const FunctionalApp = () => {
   return (
     <>
       <h2>Functional</h2>
-      <Profile user={user} />
-      <FunctionalForm user={user} setUser={setUser} />
+      <Profile user={userProfile.first ? userProfile : null} />
+      <FunctionalForm
+        userProfile={userProfile}
+        setUserProfile={(user: User) => setUserProfile(user)}
+      />
     </>
   );
 };
