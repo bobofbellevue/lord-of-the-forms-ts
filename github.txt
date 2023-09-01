@@ -1,23 +1,2 @@
 https://github.com/bobofbellevue/lord-of-the-forms-ts.git
 
-NOTES TO REVIEWER:
-
-After my first submission, where the functional side was only partially implemented and the class side worked, but you said it was overly complicated, I did the following:
-
-- Rewatched some of your videos.
-- Started over from scratch and using Typescript this time.
-- Completed both sides: class and functional.
-
-However, I think you are going to have some of the same criticisms:
-
-1. You said that the class implementation was overly complex.  I think the complexity is centered on ClassForm.OnChangePhoneSegment.  I've added comments there to help you understand the flow of the code.  My guess is that I'm tackling behaviors you didn't anticipate in the assignment.  Behaviors of working backwards through the phone fields (from backspace, delete, or overtyping) and where to set the caret when focusing in a field (at the end?, select all the text?).
-
-2. You said in passing that I shouldn't have used an OnKeyUp.  How do you handle a backspace in an empty field?  That doesn't trigger onChange.  And the user would expect the cursor to back up.
-
-Questions:
-
-3. Look at ClassInputName.tsx.  This class was kept very light.  Much of the logic remains in the parent class at ClassForm.OnChangeName.  Should I have shoved ClassForm.OnChangeName down into ClassInputName?  But then I find that I kind of have to rip the guts out of ClassForm, stick the guts in a lot of props fields, and pass the mess into the child class, ClassInputName.  That would look pretty ugly.  Or I'm not understanding?  Or it's fine as is?
-
-4. Search in ClassForm.tsx for the four calls to onChangePhoneSegment from the four phone segment <input>'s.  We've been taught to make a subsidiary class out of repetiitive code.  But I found when I tried that - like what I'm describing in #3 above - that you have to pass so many props down into the new class that you end up with way more lines of code than the current implementation.  Again, looking for guidance on this.
-
-5. The functional side is working completely, but the implementation is ugly.  It's rather like I commented last time that it seems that without a class the number of parameters you have to pass around explodes.  See onChangePhoneSegment in FunctionalForm.tsx.  The monster works, but it takes 12 parameters.  I can't regard that as elegant, readable code.  It would take a lot of study to figure out what each parameter is for.
