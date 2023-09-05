@@ -1,6 +1,6 @@
 import { useState, FormEvent } from "react";
 import { FunctionalInputName } from "./FunctionalInputName.tsx";
-import { User, ErrorType, FunctionalStateType } from "../types";
+import { User, ErrorMessages } from "../types";
 import {
   validateName,
   validateEmail,
@@ -8,48 +8,26 @@ import {
 } from "../utils/validations.ts";
 import { FunctionalInputPhone } from "./FunctionalInputPhone.tsx";
 
-const onSubmitForm = (
-  e: FormEvent<HTMLFormElement>,
-  state: FunctionalStateType
-) => {
-  e.preventDefault();
-  state.setSubmitted(true);
-
-  // validate each field because some errors were ignored before submitting - may only be caught now
-  const firstError = validateName("First name", state.userStaging.first, true);
-  const lastError = validateName("Last name", state.userStaging.last, true);
-  const cityError = validateName("City", state.userStaging.city, true);
-  const emailError = validateEmail(state.userStaging.email, true);
-  const phone = state.phoneSegments.join("");
-  const phoneError = validatePhone("Phone", phone, true);
-  const newErrors = state.errors;
-  newErrors[ErrorType.FirstName] = firstError;
-  newErrors[ErrorType.LastName] = lastError;
-  newErrors[ErrorType.City] = cityError;
-  newErrors[ErrorType.Phone] = phoneError;
-  newErrors[ErrorType.Email] = emailError;
-  state.setErrors(newErrors);
-
-  // if no errors found, set state in parent class
-  if (newErrors.join("").length === 0) {
-    state.setUserProfile({ ...state.userStaging });
-  }
-};
-
 export interface FunctionalFormProps {
   userProfile: User;
   setUserProfile(user: User): void;
 }
 
 export const FunctionalForm = (props: FunctionalFormProps) => {
-  const [userStaging, setUserStaging] = useState<User>({
+  const [user, setUser] = useState<User>({
     first: "",
     last: "",
     city: "",
     phone: "",
     email: "",
   });
-  const [errors, setErrors] = useState<string[]>(["", "", "", "", ""]);
+  const [errors, setErrors] = useState<ErrorMessages>({
+    first: "",
+    last: "",
+    city: "",
+    email: "",
+    phone: "",
+  });
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [phoneSegments, setPhoneSegments] = useState<string[]>([
     "",
@@ -58,61 +36,108 @@ export const FunctionalForm = (props: FunctionalFormProps) => {
     "",
   ]);
 
-  // Anything the child components might need is collected here
-  // Calling it "state" because it is analogous to state
-  const state: FunctionalStateType = {
-    userProfile: props.userProfile,
-    setUserProfile: (user: User) => props.setUserProfile(user),
-    userStaging: userStaging,
-    setUserStaging: (user: User) => setUserStaging(user),
-    errors: errors,
-    setErrors: (errors: string[]) => setErrors(errors),
-    phoneSegments: phoneSegments,
-    setPhoneSegments: (phoneSegments: string[]) =>
-      setPhoneSegments(phoneSegments),
-    submitted: submitted,
-    setSubmitted: (status: boolean) => setSubmitted(status),
+  const setNameState = (fieldName: string, name: string, error: string) => {
+    setUser({ ...user, [fieldName]: name });
+    setErrors({ ...errors, [fieldName]: error });
+  };
+
+  const setEmailState = (email: string, error: string) => {
+    setUser({ ...user, email: email });
+    setErrors({ ...errors, email: error });
+  };
+
+  const setPhoneState = (
+    phone: string,
+    phoneSegments: string[],
+    phoneError: string
+  ) => {
+    // if phone number is complete, update state in user object
+    if (phone.length === 7 && !phoneError) {
+      setUser({ ...user, phone: phone });
+    }
+    setErrors({ ...errors, phone: phoneError });
+    setPhoneSegments(phoneSegments);
+  };
+
+  const onSubmitForm = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitted(true);
+
+    // validate each field because some errors were ignored before submitting - may only be caught now
+    const newErrors = { first: "", last: "", email: "", city: "", phone: "" };
+    newErrors["first"] = validateName("First name", user.first, true);
+    newErrors["last"] = validateName("Last name", user.last, true);
+    newErrors["city"] = validateName("City", user.city, true);
+    newErrors["email"] = validateEmail(user.email, true);
+    const phone = phoneSegments.join("");
+    newErrors["phone"] = validatePhone("Phone", phone, true);
+    setErrors(newErrors);
+
+    // if no errors found, set state in parent component
+    if (
+      Object.entries(newErrors).find((keyvalue) => keyvalue[1].length > 0) ==
+      undefined
+    ) {
+      props.setUserProfile(user);
+    }
   };
 
   return (
-    <form onSubmit={(e) => onSubmitForm(e, state)}>
+    <form onSubmit={(e) => onSubmitForm(e)}>
       <u>
         <h3>User Information Form</h3>
       </u>
 
       <FunctionalInputName
         label={"First Name"}
-        value={userStaging.first}
-        errorType={ErrorType.FirstName}
+        value={user.first}
         fieldName={"first"}
-        state={state}
+        submitted={submitted}
+        setNameState={(fieldName, name, error) =>
+          setNameState(fieldName, name, error)
+        }
+        errorMessage={errors["first"]}
       />
 
       <FunctionalInputName
         label={"Last Name"}
-        value={userStaging.last}
-        errorType={ErrorType.LastName}
+        value={user.last}
         fieldName={"last"}
-        state={state}
+        submitted={submitted}
+        setNameState={(fieldName, name, error) =>
+          setNameState(fieldName, name, error)
+        }
+        errorMessage={errors["last"]}
       />
 
       <FunctionalInputName
         label={"City"}
-        value={userStaging.city}
-        errorType={ErrorType.City}
+        value={user.city}
         fieldName={"city"}
-        state={state}
+        submitted={submitted}
+        setNameState={(fieldName, name, error) =>
+          setNameState(fieldName, name, error)
+        }
+        errorMessage={errors["city"]}
         list={"cities"}
       />
 
-      <FunctionalInputPhone state={state} />
+      <FunctionalInputPhone
+        phoneSegments={phoneSegments}
+        submitted={submitted}
+        setPhoneState={(phone, phoneSegments, phoneError) =>
+          setPhoneState(phone, phoneSegments, phoneError)
+        }
+        errorMessage={errors["phone"]}
+      />
 
       <FunctionalInputName
         label={"Email"}
-        value={userStaging.email}
-        errorType={ErrorType.Email}
+        value={user.email}
         fieldName={"email"}
-        state={state}
+        submitted={submitted}
+        setEmailState={(email, error) => setEmailState(email, error)}
+        errorMessage={errors["email"]}
       />
 
       <input type="submit" value="Submit" />

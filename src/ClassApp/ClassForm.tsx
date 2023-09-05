@@ -5,7 +5,7 @@ import {
   validatePhone,
 } from "../utils/validations.ts";
 import { ClassInputName } from "./ClassInputName.tsx";
-import { ClassFormState, User, ErrorType } from "../types";
+import { ErrorMessages, User } from "../types";
 import { ClassInputPhone } from "./ClassInputPhone.tsx";
 
 type ClassFormProps = {
@@ -13,46 +13,78 @@ type ClassFormProps = {
   setUserProfile(user: User): void;
 };
 
+type ClassFormState = {
+  user: User;
+  errors: ErrorMessages;
+  submitted: boolean;
+  phoneSegments: string[];
+};
+
 export class ClassForm extends Component<ClassFormProps> {
   state: ClassFormState = {
-    userStaging: this.props.userProfile
+    user: this.props.userProfile
       ? this.props.userProfile
       : { first: "", last: "", city: "", phone: "", email: "" },
-    errors: ["", "", "", "", ""],
+    errors: { first: "", last: "", email: "", city: "", phone: "" },
     submitted: false,
     phoneSegments: ["", "", "", ""],
   };
 
   onSubmitForm = (e: FormEvent) => {
+    const { user, phoneSegments } = this.state;
     e.preventDefault();
     this.setState({ submitted: true });
 
     // validate each field because some errors were ignored before submitting - may only be caught now
-    const firstError = validateName(
-      "First name",
-      this.state.userStaging.first,
-      true
-    );
-    const lastError = validateName(
-      "Last name",
-      this.state.userStaging.last,
-      true
-    );
-    const cityError = validateName("City", this.state.userStaging.city, true);
-    const emailError = validateEmail(this.state.userStaging.email, true);
-    const phone = this.state.phoneSegments.join("");
-    const phoneError = validatePhone("Phone", phone, true);
-    const newErrors = this.state.errors;
-    newErrors[ErrorType.FirstName] = firstError;
-    newErrors[ErrorType.LastName] = lastError;
-    newErrors[ErrorType.City] = cityError;
-    newErrors[ErrorType.Phone] = phoneError;
-    newErrors[ErrorType.Email] = emailError;
+    const newErrors = { first: "", last: "", email: "", city: "", phone: "" };
+    newErrors["first"] = validateName("First name", user.first, true);
+    newErrors["last"] = validateName("Last name", user.last, true);
+    newErrors["city"] = validateName("City", user.city, true);
+    newErrors["email"] = validateEmail(user.email, true);
+    const phone = phoneSegments.join("");
+    newErrors["phone"] = validatePhone("Phone", phone, true);
     this.setState({ errors: newErrors });
 
     // if no errors found, set state in parent class
-    if (newErrors.join("").length === 0) {
-      this.props.setUserProfile(this.state.userStaging);
+    if (
+      Object.entries(newErrors).find((keyvalue) => keyvalue[1].length > 0) ==
+      undefined
+    ) {
+      this.props.setUserProfile(this.state.user);
+    }
+  };
+
+  setEmailState = (email: string, error: string) => {
+    this.setState({
+      user: { ...this.state.user, email: email },
+      errors: { ...this.state.errors, email: error },
+    });
+  };
+
+  setNameState = (fieldName: string, name: string, error: string) => {
+    this.setState({
+      user: { ...this.state.user, [fieldName]: name },
+      errors: { ...this.state.errors, [fieldName]: error },
+    });
+  };
+
+  setPhoneState = (
+    phone: string,
+    phoneSegments: string[],
+    phoneError: string
+  ) => {
+    // if phone number is complete, update state in user object
+    if (phone.length === 7 && !phoneError) {
+      this.setState({
+        user: { ...this.state.user, phone: phone },
+        phoneSegments: phoneSegments,
+        errors: { ...this.state.errors, phone: "" },
+      });
+    } else {
+      this.setState({
+        phoneSegments: phoneSegments,
+        errors: { ...this.state.errors, phone: phoneError },
+      });
     }
   };
 
@@ -65,44 +97,54 @@ export class ClassForm extends Component<ClassFormProps> {
 
         <ClassInputName
           label={"First Name"}
-          value={this.state.userStaging.first}
-          errorType={ErrorType.FirstName}
+          value={this.state.user.first}
           fieldName={"first"}
-          state={this.state}
-          setState={(state) => this.setState(state)}
+          submitted={this.state.submitted}
+          setNameState={(fieldName, name, error) =>
+            this.setNameState(fieldName, name, error)
+          }
+          errorMessage={this.state.errors["first"]}
         />
 
         <ClassInputName
           label={"Last Name"}
-          value={this.state.userStaging.last}
-          errorType={ErrorType.LastName}
+          value={this.state.user.last}
           fieldName={"last"}
-          state={this.state}
-          setState={(state) => this.setState(state)}
+          submitted={this.state.submitted}
+          setNameState={(fieldName, name, error) =>
+            this.setNameState(fieldName, name, error)
+          }
+          errorMessage={this.state.errors["last"]}
         />
 
         <ClassInputName
           label={"City"}
-          value={this.state.userStaging.city}
-          errorType={ErrorType.City}
+          value={this.state.user.city}
           fieldName={"city"}
-          state={this.state}
-          setState={(state) => this.setState(state)}
+          submitted={this.state.submitted}
+          setNameState={(fieldName, name, error) =>
+            this.setNameState(fieldName, name, error)
+          }
+          errorMessage={this.state.errors["city"]}
           list="cities"
         />
 
         <ClassInputPhone
-          state={this.state}
-          setState={(state) => this.setState(state)}
+          phoneSegments={this.state.phoneSegments}
+          submitted={this.state.submitted}
+          setPhoneState={(phone, phoneSegments, phoneError) =>
+            this.setPhoneState(phone, phoneSegments, phoneError)
+          }
+          errorMessage={this.state.errors["phone"]}
         />
 
         <ClassInputName
           label={"Email"}
-          value={this.state.userStaging.email}
-          errorType={ErrorType.Email}
+          value={this.state.user.email}
           fieldName={"email"}
-          state={this.state}
-          setState={(state) => this.setState(state)}
+          submitted={this.state.submitted}
+          errorMessage={this.state.errors["email"]}
+          setEmailState={(email, error) => this.setEmailState(email, error)}
         />
 
         <input type="submit" value="Submit" />

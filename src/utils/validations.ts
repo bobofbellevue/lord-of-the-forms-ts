@@ -3,12 +3,16 @@ export function validateEmail(value: string, submitted: boolean) {
   if (submitted && value.length === 0) {
     errorMessage += "Email is required. ";
   }
-  const validEmailFormat =
-    /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-  if (submitted && value.length > 0 && !validEmailFormat.test(value)) {
+  if (submitted && value.length > 0 && !isEmailValid(value)) {
     errorMessage += "Invalid email format. ";
   }
   return errorMessage;
+}
+
+function isEmailValid(emailAddress: string) {
+  // eslint-disable-next-line no-useless-escape
+  const regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  return !!emailAddress.match(regex);
 }
 
 export function validateName(field: string, name: string, submitted: boolean) {
@@ -29,7 +33,11 @@ export function validateName(field: string, name: string, submitted: boolean) {
   return errorMessage;
 }
 
-export function validatePhone(field: string, phone: string, submitted: boolean) {
+export function validatePhone(
+  field: string,
+  phone: string,
+  submitted: boolean
+) {
   let errorMessage = "";
   if (submitted) {
     if (phone.length === 0) {

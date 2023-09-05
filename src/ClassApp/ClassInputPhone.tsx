@@ -1,11 +1,12 @@
 import { Component, createRef } from "react";
 import { ErrorMessage } from "../ErrorMessage.tsx";
-import { ErrorType, ClassFormState } from "../types.ts";
 import { ClassInputPhoneSegment } from "./ClassInputPhoneSegment.tsx";
 
 type ClassInputPhoneProps = {
-  state: ClassFormState;
-  setState(state: ClassFormState): void;
+  phoneSegments: string[];
+  submitted: boolean;
+  setPhoneState(phone: string, phoneSegments: string[], error: string): void;
+  errorMessage: string;
 };
 
 export class ClassInputPhone extends Component<ClassInputPhoneProps> {
@@ -27,42 +28,54 @@ export class ClassInputPhone extends Component<ClassInputPhoneProps> {
               pos={0} // 0 = first phone segment
               max={2} // length of this segment
               nextMax={2} // length of the next segment, if any
-              state={this.props.state}
-              setState={this.props.setState}
+              submitted={this.props.submitted}
+              phoneSegments={this.props.phoneSegments}
               phoneSegmentRefs={this.phoneSegmentRefs}
+              setPhoneState={(phone, phoneSegments, phoneError) =>
+                this.props.setPhoneState(phone, phoneSegments, phoneError)
+              }
             />
             -
             <ClassInputPhoneSegment
               pos={1}
               max={2}
               nextMax={2}
-              state={this.props.state}
-              setState={this.props.setState}
+              submitted={this.props.submitted}
+              phoneSegments={this.props.phoneSegments}
               phoneSegmentRefs={this.phoneSegmentRefs}
+              setPhoneState={(phone, phoneSegments, phoneError) =>
+                this.props.setPhoneState(phone, phoneSegments, phoneError)
+              }
             />
             -
             <ClassInputPhoneSegment
               pos={2}
               max={2}
               nextMax={1}
-              state={this.props.state}
-              setState={this.props.setState}
+              submitted={this.props.submitted}
+              phoneSegments={this.props.phoneSegments}
               phoneSegmentRefs={this.phoneSegmentRefs}
+              setPhoneState={(phone, phoneSegments, phoneError) =>
+                this.props.setPhoneState(phone, phoneSegments, phoneError)
+              }
             />
             -
             <ClassInputPhoneSegment
               pos={3}
               max={1} // this is the short segment - one digit only
               nextMax={0} // no following segment
-              state={this.props.state}
-              setState={this.props.setState}
+              submitted={this.props.submitted}
+              phoneSegments={this.props.phoneSegments}
               phoneSegmentRefs={this.phoneSegmentRefs}
+              setPhoneState={(phone, phoneSegments, phoneError) =>
+                this.props.setPhoneState(phone, phoneSegments, phoneError)
+              }
             />
           </div>
         </div>
         <ErrorMessage
-          message={this.props.state.errors[ErrorType.Phone]}
-          show={this.props.state.errors[ErrorType.Phone].length > 0}
+          message={this.props.errorMessage}
+          show={this.props.errorMessage.length > 0}
         />
       </div>
     );
