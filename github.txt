@@ -1,2 +1,11 @@
 https://github.com/bobofbellevue/lord-of-the-forms-ts.git
 
+NOTE TO REVIEWER:
+
+I fixed all of your feedback except two things:
+
+1. I didn't like the idea of eliminating the User object inside of state into the five component fields.  I have a database background and to me what is "real" is what is found in the database: highly structured data.  Another argument might be that if multiple objects appeared on a form (character + avatar + magic weapon), they might all have names or fields that sound similar.  It's best to preserve the objects.
+
+2. In the error handling system I replaced the array of error message types with an object (labels instead of implied order).  However, I kept my validation functions that return zero, one, or more error messages in a string.  This just seems really convenient to me.  You either get back the error text to display or an empty string means there was no error.  The UI doesn't need to know anything about why a field didn't validate.  There's no need for two fields: error message plus error status.
+
+

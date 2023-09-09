@@ -1,57 +1,29 @@
-import { Component } from "react";
+import { Component, ChangeEvent } from "react";
 import { ErrorMessage } from "../ErrorMessage.tsx";
-import { validateEmail, validateName } from "../utils/validations.ts";
 
 export interface InputNameProps {
   value: string;
   label: string;
-  fieldName: string;
-  submitted: boolean;
-  setNameState?(fieldName: string, name: string, error: string): void;
-  setEmailState?(email: string, error: string): void;
+  onChange(e: ChangeEvent<HTMLInputElement>): void;
   list?: string;
-  errorMessage: string;
+  errors: string;
 }
 
 export class ClassInputName extends Component<InputNameProps> {
-  onChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { setEmailState, submitted } = this.props;
-    if (setEmailState) {
-      setEmailState(e.target.value, validateEmail(e.target.value, submitted));
-    }
-  };
-
-  onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { setNameState, fieldName, submitted } = this.props;
-    if (setNameState) {
-      setNameState(
-        fieldName,
-        e.target.value,
-        validateName(fieldName, e.target.value, submitted)
-      );
-    }
-  };
-
   render() {
+    const { label, value, list, errors, onChange } = this.props;
     return (
       <div>
         <div className="input-wrap">
-          <label>{this.props.label}:</label>
+          <label>{label}:</label>
           <input
             type="text"
-            onChange={
-              this.props.fieldName === "email"
-                ? (e) => this.onChangeEmail(e)
-                : (e) => this.onChangeName(e)
-            }
-            value={this.props.value}
-            list={this.props.list}
+            onChange={(e) => onChange(e)}
+            value={value}
+            list={list}
           />
         </div>
-        <ErrorMessage
-          message={this.props.errorMessage}
-          show={this.props.errorMessage !== ""}
-        />
+        <ErrorMessage message={errors} show={errors !== ""} />
       </div>
     );
   }

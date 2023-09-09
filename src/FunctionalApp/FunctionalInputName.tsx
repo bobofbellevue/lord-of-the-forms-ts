@@ -1,56 +1,28 @@
 import { ChangeEvent } from "react";
 import { ErrorMessage } from "../ErrorMessage.tsx";
-import { validateName, validateEmail } from "../utils/validations.ts";
 
 export interface InputNameProps {
-  value: string;
   label: string;
-  fieldName: string;
-  submitted: boolean;
-  setNameState?(fieldName: string, name: string, error: string): void;
-  setEmailState?(email: string, error: string): void;
+  value: string;
+  onChange(e: ChangeEvent<HTMLInputElement>): void;
   list?: string;
-  errorMessage: string;
+  errors: string;
 }
 
 export const FunctionalInputName = (props: InputNameProps) => {
-  const onChangeEmail = (e: ChangeEvent<HTMLInputElement>) => {
-    const { setEmailState, submitted } = props;
-    if (setEmailState) {
-      setEmailState(e.target.value, validateEmail(e.target.value, submitted));
-    }
-  };
-
-  const onChangeName = (e: ChangeEvent<HTMLInputElement>) => {
-    const { setNameState, fieldName, submitted } = props;
-    if (setNameState) {
-      setNameState(
-        fieldName,
-        e.target.value,
-        validateName(fieldName, e.target.value, submitted)
-      );
-    }
-  };
-
+  const { label, onChange, value, list, errors } = props;
   return (
     <div>
       <div className="input-wrap">
-        <label>{props.label}:</label>
+        <label>{label}:</label>
         <input
           type="text"
-          onChange={
-            props.fieldName === "email"
-              ? (e) => onChangeEmail(e)
-              : (e) => onChangeName(e)
-          }
-          value={props.value}
-          list={props.list}
+          onChange={(e) => onChange(e)}
+          value={value}
+          list={list}
         />
       </div>
-      <ErrorMessage
-        message={props.errorMessage}
-        show={props.errorMessage !== ""}
-      />
+      <ErrorMessage message={errors} show={errors !== ""} />
     </div>
   );
 };
