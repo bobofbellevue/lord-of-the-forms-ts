@@ -9,7 +9,6 @@ import {
 import { FunctionalInputPhone } from "./FunctionalInputPhone.tsx";
 
 export type FunctionalFormProps = {
-  userProfile: User;
   setUserProfile(user: User): void;
 };
 

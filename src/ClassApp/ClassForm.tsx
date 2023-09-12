@@ -9,7 +9,6 @@ import { ClassInputPhone } from "./ClassInputPhone.tsx";
 import { User } from "../types.ts";
 
 type ClassFormProps = {
-  userProfile: User | null;
   setUserProfile(user: User): void;
 };
 

@@ -28,8 +28,8 @@ export const Profile = (props: ProfileProps) => {
       </u>
       {props.user ? (
         <div className="user-info">
-          <InfoRow label="First Name" value={props.user.first} />
-          <InfoRow label="Last Name" value={props.user.last} />
+          <InfoRow label="First Name" value={props.user.firstName} />
+          <InfoRow label="Last Name" value={props.user.lastName} />
           <InfoRow label="City" value={props.user.city} />
           <InfoRow label="Phone" value={formatPhoneNumber(props.user.phone)} />
           <InfoRow label="Email" value={props.user.email} />

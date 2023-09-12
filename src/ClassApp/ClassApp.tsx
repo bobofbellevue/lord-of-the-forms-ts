@@ -18,7 +18,6 @@ export class ClassApp extends Component {
         <h2>Class</h2>
         <Profile user={this.state.userProfile} />
         <ClassForm
-          userProfile={this.state.userProfile}
           setUserProfile={(user: User) => this.setState({ userProfile: user })}
         />
       </>
